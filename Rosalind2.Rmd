@@ -1,0 +1,446 @@
+---
+title: "Rosalind2"
+author: "Erik Sundberg"
+date: "6/12/2019"
+output: html_document
+---
+
+####DNA strings Overlap graph
+```{r Overlap graph}
+#Scan the given text (fasta format)
+OGd <- scan("rosalind_grph.txt", what = character())
+#Complete sequences separated by \n in given text
+OGd <- gsub(">", "", OGd)
+
+ixn <- grep("Rosa",OGd) #Indices for seq names
+OGn <- OGd[ixn] #Seq names vector
+
+OGd[ixn] <- "_" #Replace seq names
+dna_list <- unlist(strsplit(paste(OGd, collapse = ""), "_"))
+dna_list <- dna_list[-1]
+
+#Name the sequences
+names(dna_list) <- OGn 
+
+#Construct the O3 oadjacency list
+ol <- NULL
+for (i in 1:length(dna_list)) {
+    for (j in 1:length(dna_list)) {
+        if(substr(dna_list[i], nchar(dna_list[i])-2, nchar(dna_list[i])) == substr(dna_list[j],1,3) && dna_list[i] != dna_list[j]) {
+           ol <- rbind(ol, cbind(names(dna_list[i]), names(dna_list[j])))
+        }
+    }
+}
+
+#Write the the answer to output file.
+write.table(ol, "output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " ")
+```
+####Alternative solution
+```{r}
+library(seqinr)
+library(stringr)
+data <- read.fasta(file = "rosalind_grph.txt", as.string = TRUE)
+data_name <-names(data)
+for(i in 1:(length(data))) {
+  data[i]= unlist(data[i],use.names=FALSE)  
+}
+
+result <- character()
+for(i in 1:length(data)) {
+  data[i][-1:-3]
+  for(j in 1:length(data)) {
+    if(i!=j) {
+      if(str_sub(data[i],-3,-1)==str_sub(data[j],1,3)) {
+      result <- rbind(result, c(data_name[i],data_name[j]))
+      }
+    }
+  }
+}
+write.table(result, file="mymatrix.txt", row.names=FALSE, col.names=FALSE,quote=FALSE)
+```
+
+
+####Calculating expected offspring
+```{r Expected offspring}
+#Numbers of each genotype pairing 
+np <- scan("rosalind_iev.txt")
+
+#Vector of probabilities for offsp w dom phenotype
+vP <- c(1, 1, 1, 0.75, 0.5, 0)
+
+#Multiply pairs w probabilities, each pair gets 2 offsp
+os <- sum(2*np*vP)
+
+#Total nr of offsp w dom phenotype, write to file
+write.table(os, file = "os_output.txt",quote = FALSE, row.names = FALSE, col.names = FALSE)
+
+```
+
+
+####Finding a shared motif
+```{r Shared motif}
+library(seqinr)
+#Read all fasta sequences
+fasL <- read.fasta("rosalind_lcsm.txt")
+#Convert to a vector of seq-strings
+allS <- toupper(unname(sapply(fasL, paste, collapse = "")))
+#Order so that the shortest seq is nr 1
+allS <- allS[order(nchar(allS), allS)]
+
+#Check if a motif in one seq exists in all seqs
+mot <- ""  #motif-string
+j = 1  #start of substring
+i = 0  #increased length of substring
+while(j <= nchar(allS[1])-nchar(mot)) 
+    { 
+  for(i in nchar(mot):nchar(allS[1])) 
+      { 
+      if(names(summary(grepl(substr(allS[1], j, j+i), allS)))[2] != "FALSE" & nchar(substr(allS[1], j, j+i)) > nchar(mot)) 
+        {
+    mot <- substr(allS[1], j, j+i)  #longest motif
+      } else break
+    }
+  j <- j+1
+}
+
+print(mot, quote = FALSE)
+writeChar(mot, "mot_output.txt")
+```
+
+####Independent alleles
+```{r Independent alleles}
+#Aa and Bb alleles are independent
+
+k = 7 #Final generation 
+N = 37 #Least number of Aa Bb in gen k
+P = 2^k #Gen k population (nr of 'trials')
+
+#Probability that a parent mating with Aa Bb has an offspring with Aa Bb is always 0.25 (0.5*0.5)
+
+#Perform binomial distribution to get Pr that at least N offspring have the Aa Bb genotype
+#quantiles = 2^k-N (91), nr of 'trials' = 2^k (128)
+prob <- pbinom(P-N, P, 0.75)
+#or sum(dbinom(N:P, P, 0.25))
+print(signif(prob, 4))
+
+```
+
+####Finding a protein motif
+```{r Finding a protein motif}
+library(seqinr)
+
+write("", "output.txt", append = FALSE)
+nm <- readLines("rosalind_mprt.txt") #UniProt IDs
+
+tmp <- read.fasta("testPmotif.txt") #Protein sequences
+names(tmp) <- nm
+pmt <- toupper(sapply(tmp, paste, collapse=""))
+
+vecn <- c() #names vector
+veci <- c() #indices vector
+k = 0 #shortened length of vectors
+#Find all (N-glycosylation) motif's starting w N, followed by not P, then S or T, then not P. 
+motf <- gregexpr("N(?=[^P][ST][^P])", pmt[1:length(tmp)], perl = TRUE) 
+
+for(i in 1:length(motf)){
+  if(motf[[i]][1] != -1){
+    vecn[i-k] <- paste(names(tmp[i]))
+    veci[i-k] <- paste(as.numeric(motf[[i]]), collapse = " ") 
+    write(vecn[i-k], "output.txt", append = TRUE)
+    write( veci[i-k], "output.txt", append = TRUE, sep = " ")
+  } else k = k+1
+}
+
+```
+
+####Inferring mRNA from protein
+```{r Inferring mRNA}
+
+#Construct an 'amino-acid'-vector w elements corresponding to each codon
+cdns <- seqinr::words(alphabet = s2c("tcag"))
+cdns <- as.list(cdns)
+cdns <- sapply(cdns, strsplit, "")
+cdnsAA <- sapply(cdns, translate)
+
+#Read the amino-acid seq
+AAseq <- readLines("rosalind_mrna.txt")
+AAseq <- unlist(strsplit(AAseq, ""))
+AAseq <- c(AAseq, "*") #add the stop-codon
+n = 10^6
+b = 1
+for(i in 1:length(AAseq)) {
+a = length(which(cdnsAA == AAseq[i]))
+b = (b*a) %% n 
+}
+b
+```
+
+
+
+####Open reading frames
+```{r ORF}
+library(seqinr)
+#Given sequence as character vector
+aseq <- unlist(lapply(read.fasta("rosalind_orf.txt"), toupper))
+#Complementary sequence (made w rc(x) from chunk above)
+raseq <- unlist(strsplit(rc(toupper(aseq)), ""))
+
+#Translate all possible reading frames, store as vectors of strings:
+fRF <- c() #Translated forward reading frames
+rRF <- c() #Translated reverse reading frames
+for(i in 1:3) {
+ fRF[i] <- paste(translate(aseq[i:length(aseq)]), collapse = "")
+ rRF[i] <- paste(translate(raseq[i:length(raseq)]), collapse = "")
+}
+
+#Extract all strings containing "M", ending w a stop-codon ("*"), store them in a vector
+prtn <- c()
+for(i in 1:length(fRF)) {
+tmp = NULL
+tmp <- unlist(strsplit(fRF[i], "\\*")) #split at "*"
+tmp <- tmp[-length(tmp)] #remove last string
+tmp <- tmp[grep("M", tmp)] #extract strings w "M"
+tmp2 = NULL
+tmp2 <- unlist(strsplit(rRF[i], "\\*"))
+tmp2 <- tmp2[-length(tmp2)]
+tmp2 <- tmp2[grep("M", tmp2)]
+prtn <- c(prtn, tmp, tmp2) 
+}
+
+#From each string, extract all possible substrings starting w an "M", store them in a vector
+orf <- c()
+for(i in 1:length(prtn)) {
+  ix <- c()  #indices for "M"
+  ix <- unlist(gregexpr("M", prtn[i]))
+  for(j in 1:length(ix)) {
+    orf <- c(orf, substr(prtn[i], ix[j], nchar(prtn[i])))
+  }
+}
+print(unique(orf), quote = FALSE) #Print w/o duplicates
+writeLines(unique(orf), "output.txt")
+
+```
+
+
+#Enumerating gene orders
+```{r Enumerating}
+
+n = 5 #given integer
+
+perm <- function(x) { #permutation function
+
+dig <- seq(1, x) #integer sequence
+
+#Make vector w all 1st integers
+digR = rep(seq(1, x), each = factorial(x-1))
+#Make empty permutation matrix
+pm <- matrix(ncol = x, nrow = length(digR))
+#Fill 1st column w all 1st ints
+pm[,1] <- digR
+
+b <- c() #times to repeat each seq of ints... (dig[-ix])
+for(i in 1:(length(dig)-1)) {
+  b = c(b, factorial(x-(i+1)) )
+}
+
+d = 1
+while(d < x) {
+  tmp <- c()
+  k = 1
+  for(i in 1:(factorial(x)/factorial(x-d) ) ) {
+    ix <- c() #indices for ints not in preceeding seq
+    ix <- which(dig %in% pm[k,1:d])
+    tmp <- c(tmp, rep(dig[-ix], each = b[d]) )
+    
+    k = k+b[d]*dig[length(dig)-d]
+    if(i == (factorial(x)/factorial(x-d) ) ) {
+      
+      pm[,d+1] <- tmp
+      
+    }
+  }
+d = d+1
+}
+
+print(dim(pm)[1])
+return(pm)
+write.table(dim(pm)[1], file ="output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(pm, file ="output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE, append = TRUE)
+}
+```
+####Alternatively...
+```{r include=FALSE}
+library(combinat)
+
+n = 4
+what <- permn(n)
+test <- t(sapply(what, print))
+write.table(factorial(n), "output.txt", row.names = FALSE, col.names = FALSE)
+write.table(test, "output.txt", row.names = FALSE, col.names = FALSE, append = TRUE)
+```
+
+####Calculating protein mass
+```{r Protein mass}
+
+#Given protein
+amins <- unlist(strsplit(readLines("rosalind_prtm.txt"),""))
+#Weighted alphabet
+mimt <- read.table("Monoisotopic mass table.txt")
+
+prtm = 0
+for(i in 1:length(amins)) {
+  ix <- which(mimt[,1] == amins[i])
+  prtm = prtm + mimt[ix, 2]
+}
+print(format(prtm, nsmall = 3), quote = FALSE)
+
+
+```
+
+
+## ---- Reverse-complementary-sequence
+```{r reverse complement, echo=TRUE, message=TRUE}
+
+#s <- aseq#"AAAACCCGGT"
+
+rc <- function(x) {
+#Split a character string
+ss <- unlist(strsplit(x, NULL))
+
+#Reverse the split character string
+ssrev <- rev(ss)
+
+#Replace characters with complementary letters
+for(i in 1:length(ssrev)) {
+  if(ssrev[i] == "T") { 
+    ssrev[i] <- "A" 
+  } else if(ssrev[i] == "A") {
+      ssrev[i] <- "T"
+  } else if(ssrev[i] == "G") {
+      ssrev[i] <- "C"
+  } else if(ssrev[i] == "C") {
+      ssrev[i] <- "G"
+    }
+}
+#Paste the complementary string
+sc <- paste(ssrev, collapse = "")
+sc }
+```
+
+####Locating restriction sites
+```{r restriction sites}
+dna = toupper(unlist(read.fasta('rosalind_revp.txt')))
+
+locz <- c()
+lenz <- c()
+for (length in 3:12) {
+	for (index in 1:(length(dna)-length+1)) {
+		if (DNAString(paste(dna[index:(index+length)], collapse ="")) == reverseComplement(DNAString(paste(dna[index:(index+length)], collapse="")))) {
+
+			locz <- c(locz, index)
+			lenz <- c(lenz, length+1)
+			
+		}
+	}
+}
+
+revp <- matrix(ncol = 2, nrow = length(lenz))
+revp[,1] <- locz
+revp[,2] <- lenz
+revp <- revp[order(revp[,1]),]
+
+write.table(revp, "output.txt", row.names = FALSE, col.names = FALSE)
+
+```
+####Alternatively
+```{r}
+DnaComplements <- list(T='A', A='T', C='G', G='C')
+
+complementDnaItem <- function(token) {
+  DnaComplements[[token]]
+}
+
+complementDna <- function(str, reverse=FALSE) {
+  complement <- sapply(unlist(strsplit(str, '')), complementDnaItem)
+  if (reverse) complement <- rev(complement)
+  paste(complement, collapse='')
+}
+
+isDnaReversePalindrome <- function(str) {
+  str == complementDna(str, rev=TRUE)
+}
+
+findAllRevPalindromes <- function(str, lo=4, hi=8) {
+  str_len <- nchar(str)
+  for (i in 1:(str_len-4)) {
+    for (j in lo:(min(str_len-i+1,hi))) {
+      search_str <- substr(str, i, i+j-1)
+      if (isDnaReversePalindrome(search_str)) cat(i,j,"\n")
+    }
+  }
+}
+
+data <- scan('rosalind_revp.txt', character(), quiet=TRUE)
+findAllRevPalindromes(data)
+```
+####Alternatively
+```{r}
+library(stringi)
+
+seq<-"TCAATGCATGCGGGTCTATATGCAT"
+comp_seq<-chartr("ATCG","TAGC", seq) #Translate characters
+
+ for (i in 1:nchar(seq)) {                  
+    for (j in c(3,5,7,9,11)) {                           
+        string1<-substring(seq, i, j+i)
+        string2<-substring(comp_seq, i, j+i)
+
+        if (nchar(string1)<=j) {      
+            break
+        }
+
+        if(string1==stri_reverse(string2)) { #rev string function!              
+            cat(i, " ", j+1, "\n", sep="")
+        }
+    }
+}
+
+```
+
+
+####RNA Splicing
+```{r RNA Splicing}
+exin <- read.fasta("rosalind_splc.txt", as.string = TRUE, forceDNAtolower = TRUE)
+
+exin <- sapply(exin, as.vector)
+dna <- exin[1] #DNA/pre-mRNA to be spliced 
+intr <- exin[-1] #introns to splice away
+
+spl <- dna
+for(i in 1:length(intr)) {
+  #remove patterns equal to introns
+  spl <- base::gsub(intr[i], "", spl)  
+}
+
+splc <- unlist(strsplit(spl, ""))
+amin <- seqinr::translate(splc) #translate into aa-sequence
+pept <- paste(amin[-length(amin)], collapse = "")
+
+writeLines(pept, "output.txt")
+
+```
+####Alternatively
+```{r}
+library(Biostrings)
+x <- readDNAStringSet("rosalind_splc.txt")
+dna <- as.character(x[[1]])
+#
+i<-2
+while (i<=length(x))
+{
+  dna <- sub(x[[i]],"",dna)
+  i <- i+1
+}
+p <- translate(DNAString(dna))
+```
+
