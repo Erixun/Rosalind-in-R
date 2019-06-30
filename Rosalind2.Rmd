@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ####DNA strings Overlap graph
-```{r Overlap graph}
+```{r Overlap graph, eval=FALSE}
 #Scan the given text (fasta format)
 OGd <- scan("rosalind_grph.txt", what = character())
 #Complete sequences separated by \n in given text
@@ -35,8 +35,8 @@ for (i in 1:length(dna_list)) {
 #Write the the answer to output file.
 write.table(ol, "output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " ")
 ```
-####Alternative solution
-```{r}
+Alternative solution
+```{r, eval=FALSE}
 library(seqinr)
 library(stringr)
 data <- read.fasta(file = "rosalind_grph.txt", as.string = TRUE)
@@ -61,7 +61,7 @@ write.table(result, file="mymatrix.txt", row.names=FALSE, col.names=FALSE,quote=
 
 
 ####Calculating expected offspring
-```{r Expected offspring}
+```{r Expected offspring, eval=FALSE}
 #Numbers of each genotype pairing 
 np <- scan("rosalind_iev.txt")
 
@@ -78,7 +78,7 @@ write.table(os, file = "os_output.txt",quote = FALSE, row.names = FALSE, col.nam
 
 
 ####Finding a shared motif
-```{r Shared motif}
+```{r Shared motif, eval=FALSE}
 library(seqinr)
 #Read all fasta sequences
 fasL <- read.fasta("rosalind_lcsm.txt")
@@ -108,7 +108,7 @@ writeChar(mot, "mot_output.txt")
 ```
 
 ####Independent alleles
-```{r Independent alleles}
+```{r Independent alleles, eval=FALSE}
 #Aa and Bb alleles are independent
 
 k = 7 #Final generation 
@@ -126,7 +126,7 @@ print(signif(prob, 4))
 ```
 
 ####Finding a protein motif
-```{r Finding a protein motif}
+```{r Finding a protein motif, eval=FALSE}
 library(seqinr)
 
 write("", "output.txt", append = FALSE)
@@ -154,7 +154,7 @@ for(i in 1:length(motf)){
 ```
 
 ####Inferring mRNA from protein
-```{r Inferring mRNA}
+```{r Inferring mRNA, eval=FALSE}
 
 #Construct an 'amino-acid'-vector w elements corresponding to each codon
 cdns <- seqinr::words(alphabet = s2c("tcag"))
@@ -222,8 +222,8 @@ writeLines(unique(orf), "output.txt")
 ```
 
 
-#Enumerating gene orders
-```{r Enumerating}
+####Enumerating gene orders
+```{r Enumerating, eval=FALSE}
 
 n = 5 #given integer
 
@@ -268,8 +268,8 @@ write.table(dim(pm)[1], file ="output.txt", quote = FALSE, row.names = FALSE, co
 write.table(pm, file ="output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE, append = TRUE)
 }
 ```
-####Alternatively...
-```{r include=FALSE}
+Alternatively
+```{r eval=FALSE}
 library(combinat)
 
 n = 4
@@ -280,7 +280,7 @@ write.table(test, "output.txt", row.names = FALSE, col.names = FALSE, append = T
 ```
 
 ####Calculating protein mass
-```{r Protein mass}
+```{r Protein mass, eval=FALSE}
 
 #Given protein
 amins <- unlist(strsplit(readLines("rosalind_prtm.txt"),""))
@@ -298,8 +298,8 @@ print(format(prtm, nsmall = 3), quote = FALSE)
 ```
 
 
-## ---- Reverse-complementary-sequence
-```{r reverse complement, echo=TRUE, message=TRUE}
+####Reverse-complementary-sequence
+```{r reverse complement, eval=FALSE}
 
 #s <- aseq#"AAAACCCGGT"
 
@@ -328,7 +328,7 @@ sc }
 ```
 
 ####Locating restriction sites
-```{r restriction sites}
+```{r restriction sites, eval=FALSE}
 dna = toupper(unlist(read.fasta('rosalind_revp.txt')))
 
 locz <- c()
@@ -352,8 +352,8 @@ revp <- revp[order(revp[,1]),]
 write.table(revp, "output.txt", row.names = FALSE, col.names = FALSE)
 
 ```
-####Alternatively
-```{r}
+Alternatively
+```{r, eval=FALSE}
 DnaComplements <- list(T='A', A='T', C='G', G='C')
 
 complementDnaItem <- function(token) {
@@ -383,8 +383,8 @@ findAllRevPalindromes <- function(str, lo=4, hi=8) {
 data <- scan('rosalind_revp.txt', character(), quiet=TRUE)
 findAllRevPalindromes(data)
 ```
-####Alternatively
-```{r}
+Alternatively
+```{r, eval=FALSE}
 library(stringi)
 
 seq<-"TCAATGCATGCGGGTCTATATGCAT"
@@ -409,7 +409,7 @@ comp_seq<-chartr("ATCG","TAGC", seq) #Translate characters
 
 
 ####RNA Splicing
-```{r RNA Splicing}
+```{r RNA Splicing, eval=FALSE}
 exin <- read.fasta("rosalind_splc.txt", as.string = TRUE, forceDNAtolower = TRUE)
 
 exin <- sapply(exin, as.vector)
@@ -429,8 +429,8 @@ pept <- paste(amin[-length(amin)], collapse = "")
 writeLines(pept, "output.txt")
 
 ```
-####Alternatively
-```{r}
+Alternatively
+```{r eval=FALSE}
 library(Biostrings)
 x <- readDNAStringSet("rosalind_splc.txt")
 dna <- as.character(x[[1]])
