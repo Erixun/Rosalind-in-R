@@ -1,15 +1,19 @@
 ---
-title: "Rosalind3"
+title: "Rosalind problems 23-30"
 author: "Erik Sundberg"
 date: "6/21/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 4
 ---
 
-```{r setup, eval=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ####23. Enumerating k-mers lexicographically
+*Given*: A collection of at most 10 symbols defining an ordered alphabet, and a positive integer n
+(n≤10).
+
+*Return*: All strings of length n
+that can be formed from the alphabet, ordered lexicographically (use the standard order of symbols in the English alphabet).
 ```{r eval=FALSE}
 
 abn <- readLines("rosalind_lexf.txt")
@@ -48,8 +52,16 @@ for (i in 2:combt) {
 }
 cat(res, sep = '\n')
 ```
-
+  
 ####24. Longest increasing and decreasing subsequence
+A subsequence of a permutation is a collection of elements of the permutation in the order that they appear. For example, (5, 3, 4) is a subsequence of (5, 1, 3, 4, 2).
+
+A subsequence is increasing if the elements of the subsequence increase, and decreasing if the elements decrease. For example, given the permutation (8, 2, 1, 6, 5, 7, 4, 3, 9), an increasing subsequence is (2, 6, 7, 9), and a decreasing subsequence is (8, 6, 5, 4, 3). You may verify that these two subsequences are as long as possible.
+
+*Given*: A positive integer n≤10000
+followed by a permutation π of length n.
+
+*Return*: A longest increasing subsequence of π, followed by a longest decreasing subsequence of π.
 ```{r eval=FALSE}
 #Solved in Python
 ```
@@ -97,6 +109,15 @@ print_seq(dec_lk, which(dec_ct == max(dec_ct))[1])
 ```
 
 ####25. Genome assembly as shortest superstring
+For a collection of strings, a larger string containing every one of the smaller strings as a substring is called a superstring.
+
+By the assumption of parsimony, a shortest possible superstring over a collection of reads serves as a candidate chromosome.
+
+*Given*: At most 50 DNA strings of approximately equal length, not exceeding 1 kbp, in FASTA format (which represent reads deriving from the same strand of a single linear chromosome).
+
+The dataset is guaranteed to satisfy the following condition: there exists a unique way to reconstruct the entire chromosome from these reads by gluing together pairs of reads that overlap by more than half their length.
+
+*Return*: A shortest superstring containing all the given strings (thus corresponding to a reconstructed chromosome).
 ```{r Genome assembly, eval=FALSE}
 library(seqinr)
 reads <- read.fasta("rosalind_long.txt")
@@ -137,6 +158,9 @@ writeLines(supz, "output.txt")
 
 
 ####26. Perfect matchings and RNA secondary structures
+*Given*: An RNA string s of length at most 80 bp having the same number of occurrences of 'A' as 'U' and the same number of occurrences of 'C' as 'G'.
+
+*Return*: The total possible number of perfect matchings of basepair edges in the bonding graph of s.
 ```{r Perfect matchings, eval=FALSE}
 library(seqinr)
 library(gmp)
@@ -148,6 +172,14 @@ factorialZ(length(rna[rna == "a"]))*factorialZ(length(rna[rna == "g"]))
 
 
 ####27. Partial permutations
+A partial permutation is an ordering of only k objects taken from a collection containing n objects (i.e., k≤n). For example, one partial permutation of three of the first eight positive integers is given by (5,7,2).
+
+The statistic P(n,k) counts the total number of partial permutations of k objects that can be formed from a collection of n objects. Note that P(n,n) is just the number of permutations of n objects, which we found to be equal to n!=n(n−1)(n−2)⋯(3)(2) in “Enumerating Gene Orders”.
+
+*Given*: Positive integers n
+and k such that 100≥n>0 and 10≥k>0.
+
+*Return*: The total number of partial permutations P(n,k), modulo 1,000,000.
 ```{r Partial permutations, eval=FALSE}
 nk <- scan("rosalind_pper.txt")
 n <- nk[1]; k <- nk[2]
@@ -169,9 +201,9 @@ Reduce( f, nums ) #??
 
 
 ####28. Introduction to random strings
-Given: A DNA string s of length at most 100 bp and an array A containing at most 20 numbers between 0 and 1.
+*Given*: A DNA string s of length at most 100 bp and an array A containing at most 20 numbers between 0 and 1.
 
-Return: An array B having the same length as A in which B[k] represents the common logarithm of the probability that a random string constructed with the GC-content found in A[k] will match s exactly.
+*Return*: An array B having the same length as A in which B[k] represents the common logarithm of the probability that a random string constructed with the GC-content found in A[k] will match s exactly.
 ```{r Introduction to random strings, eval=FALSE}
 
 prob <- readLines("rosalind_prob.txt")
@@ -209,9 +241,9 @@ write(round(B, 3),"output.txt", ncolumns = length(B))
 ####29. Enumerating oriented gene orderings
 A signed permutation of length n is some ordering of the positive integers {1,2,…,n} in which each integer is then provided with either a positive or negative sign (for the sake of simplicity, we omit the positive sign). For example, π=(5,−3,−2,1,4) is a signed permutation of length 5.
 
-Given: A positive integer n≤6.
+*Given*: A positive integer n≤6.
 
-Return: The total number of signed permutations of length n
+*Return*: The total number of signed permutations of length n
 , followed by a list of all such permutations (you may list the signed permutations in any order).
 ```{r Enumerating oriented gene orderings, eval=FALSE}
 n = 6
@@ -260,9 +292,9 @@ A subsequence of a string is a collection of symbols contained in order (though 
 
 As a substring can have multiple locations, a subsequence can have multiple collections of indices, and the same index can be reused in more than one appearance of the subsequence; for example, ACG is a subsequence of AACCGGTT in 8 different ways.
 
-Given: Two DNA strings s and t (each of length at most 1 kbp) in FASTA format.  
+*Given*: Two DNA strings s and t (each of length at most 1 kbp) in FASTA format.  
 
-Return: One collection of indices of s in which the symbols of t appear as a subsequence of s. If multiple solutions exist, you may return any one.
+*Return*: One collection of indices of s in which the symbols of t appear as a subsequence of s. If multiple solutions exist, you may return any one.
 ```{r eval=FALSE}
 library(seqinr)
 sseq <- read.fasta("rosalind_sseq.txt")
@@ -313,24 +345,5 @@ repeat{
   }
 }
 
-```
-In python!
-```{python}
-a= "ACGTACGTGACG"
-#seq
-b= "GTA"#query
-res=[0 for x in b]
-i=0
-j=0
-while i <= len(a):
-    if a[i]==b[j]:
-        res[j]=str(i+1)
-        i += 1
-        j += 1
-        if j==len(b):
-            break
-    else:
-        i += 1
-print(' '.join(res))
 ```
 
