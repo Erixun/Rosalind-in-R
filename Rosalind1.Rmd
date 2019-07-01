@@ -1,27 +1,25 @@
 ---
-title: "Rosalind"
+title: "Rosalind problems 3-11"
 author: "Erik Sundberg"
 date: "6/6/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 4
 ---
 
-```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(tidyverse)
-library(edgeR)
-library(seqinr)
-```
+####3. Complementing a strand of DNA
+In DNA strings, symbols 'A' and 'T' are complements of each other, as are 'C' and 'G'.
 
+The reverse complement of a DNA string s
+is the string sc formed by reversing the symbols of s, then taking the complement of each symbol (e.g., the reverse complement of "GTCA" is "TGAC").
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+*Given*: A DNA string s of length at most 1000 bp.
 
+*Return*: The reverse complement sc of s.
+```{r reverse complement, eval=FALSE}
 
-####**Reverse complementary sequence**
-```{r reverse complement, echo=TRUE, message=TRUE}
-
-s <- aseq#"AAAACCCGGT"
+s <- "AAAACCCGGT"#aseq#
 
 rc <- function(x) {
 #Split a character string
@@ -48,8 +46,11 @@ sc }
 ```
 
 
-####**Fibonacci sequence**
-```{r Rabbits and recurrence}
+####4. Rabbits and recurrence relations
+*Given*: Positive integers n≤40 and k≤5.
+
+*Return*: The total number of rabbit pairs that will be present after n months, if we begin with 1 pair and in each generation, every pair of reproduction-age rabbits produces a litter of k rabbit pairs (instead of only 1 pair).
+```{r Rabbits and recurrence, eval=FALSE}
 rF <- c()
 n = 32
 k = 3
@@ -63,14 +64,15 @@ for(i in 1:n) {
 }
 rF[length(rF)]
 
-
-
 ```
 
 
-####**Calculate percentage GC-content in a DNA sequence**
-```{r GC-content}
+####5. Calculate percentage GC-content in a DNA sequence
+*Given*: At most 10 DNA strings in FASTA format (of length at most 1 kbp each).
 
+*Return*: The ID of the string having the highest GC-content, followed by the GC-content of that string. Rosalind allows for a default error of 0.001 in all decimal answers unless otherwise stated; please see the note on absolute error below.
+```{r GC-content, eval=FALSE}
+library(seqinr)
 #Function for calculating GC-content from text in fasta format
 #x is the filename, eg 'rosalind_gc.txt'
 gcc <- function(x) {
@@ -108,8 +110,13 @@ rbind(names(fasta)[most_gc], paste(signif(gc_content[most_gc], 7) * 100, "%", se
 ```
 
 
-####Counting points mutations
-```{r Hamming distance}
+####6. Counting points mutations
+Given two strings s and t of equal length, the Hamming distance between s and t, denoted d~H~(s,t), is the number of corresponding symbols that differ in s and t. 
+
+*Given*: Two DNA strings s and t of equal length (not exceeding 1 kbp).
+
+*Return*: The Hamming distance d~H~(s,t).
+```{r Hamming distance, eval=FALSE}
 
 a <- c("")
 a2 <- unlist(strsplit(a, "\n"))
@@ -121,8 +128,11 @@ length(which(b1 != b2))
 ```
 
 
-####Mendelian inheritance
-```{r Mendelian inheritance}
+####7. Mendel's first law
+*Given*: Three positive integers k, m, and n, representing a population containing k+m+n organisms: k individuals are homozygous dominant for a factor, m are heterozygous, and n are homozygous recessive.
+
+*Return*: The probability that two randomly selected mating organisms will produce an individual possessing a dominant allele (and thus displaying the dominant phenotype). Assume that any two organisms can mate.
+```{r Mendelian inheritance, eval=FALSE}
 
 vec <- c("19 18 28")
 vec <- as.double(unlist(strsplit(vec, " ")))
@@ -167,13 +177,21 @@ for(x in 1:length(domi)) {
 }
 sum(domi)/length(domi)
 
-
 ```
+  
+  
+####8. Translating RNA into Protein
+The 20 commonly occurring amino acids are abbreviated by using 20 letters from the English alphabet (all letters except for B, J, O, U, X, and Z). Protein strings are constructed from these 20 symbols. Henceforth, the term genetic string will incorporate protein strings along with DNA strings and RNA strings.
 
-####Translating RNA into Protein
-```{r Translating RNA into Protein}
-#Given file w RNA string
-s <- readLines("/Users/eriksundberg/Downloads/rosalind_prot.txt")
+The RNA codon table dictates the details regarding the encoding of specific codons into the amino acid alphabet.
+
+*Given*: An RNA string s corresponding to a strand of mRNA (of length at most 10 kbp).
+
+*Return*: The protein string encoded by s.
+```{r Translating RNA into Protein, eval=FALSE}
+library(readr)
+#Given file w RNA string, in working directory
+s <- readLines("rosalind_prot.txt")
 s2 <- gsub("\n", "", s)
 #RNA codon table
 RC <- read_table('RNAcodonTable.txt', col_names = FALSE)
@@ -199,9 +217,9 @@ for(k in 1:length(ss)) {
 }
 pvec <- pvec[-k]
 paste(pvec, collapse = "")
-
-
-#Alternative solution:
+```
+Alternatively
+```{r, eval=FALSE}
 ## The translation table
 codon_trans <- scan( what=character(), textConnection("
 UUU F      CUU L      AUU I      GUU V
@@ -253,13 +271,18 @@ cat(paste(collapse="",
 
 ```
 
-####Finding Motif's in DNA
-```{r Finding Motifs in DNA}
-s <- readLines("/Users/eriksundberg/Downloads/rosalind_subs.txt")
-s1 <- s[1]
-s2 <- s[2]
-unlist(gregexpr(pattern = s2, text = s1, perl=T))
+####9. Finding a motif in DNA
+*Given*: Two DNA strings s and t (each of length at most 1 kbp).
 
+*Return*: All locations of t as a substring of s.
+```{r Finding Motifs in DNA, eval=FALSE}
+#Read given DNA string and motif, from file in wd
+#s <- readLines("rosalind_subs.txt")
+#s1 <- s[1]
+#s2 <- s[2]
+#unlist(gregexpr(pattern = s2, text = s1, perl=T))
+
+#or...
 s2 <- unlist(strsplit("CTTCGTTTCCTGCTCGTTTCTCGTTTCTCAATCGTTTCATCGTGTCGTTTCTGTCGTTTCAGGTCGTTTCTCGTTTCTTCGTTTCTCGTTTCGTTATCGTTTCAATCGTTTCGTCTCGTTTCCTTCCCCAAGGTTCGTTTCTATCGTTTCCCTCGTTTCTGTCGTTTCGATATTTCGTTTCTCGTTTCACCACATCGTTTCATTCGTTTCATCGTTTCTCGTTTCTTCGTTTCTCGTTTCTCGTTTCTCGTTTCCGTCGTTTCTCGTTTCGTGATTCGTTTCTCGTTTCCTAATATCGTTTCACCATCGTCGTTTCATCGTCTTTCGTTTCACTCGTTTCGTCTGTTCGTTTCTCGTTTCTCGTTTCAGTCGTTTCCGTCGTTTCCTATCGTTTCGTCGTTTCTCGTTTCGCAAAGACATCGTTTCCATGTCGTTTCTCGTTTCTCGTTTCACATCGTTTCTCGTTTCCGTCGTTTCTCTCGTTTCCTATCGTTTCCCGTCGTTTCCCCTCGTTTCAACTCGTTTCATCGTTTCTCGTTTCGTCGTTTCAGTCGTTTCTCGTTTCCGGAATCGTTTCTCGTTTCCTCGTTTCGGTATCGTTTCTCTCGTTTCCCATCGTTTCTCGTTTCCTAGCTCGTTTCTCGTTTCGCAATCCCTACACTCGTTTCGTTCGTTTCATCGTTTCATTCGTTTCGTCGTTTCCTCGTTTCGATCGTTTCTAGATCGTTTCTCGTTTCTCGTTTCGGCAAGTCGTTTCTCGTTTCTTGACAAGTCGTTTCATCGTTTCTTTGCTTTTCGTTTCTCATTCGTTTCTCGTTTCTCGCATTCGTTTCGCTTCGTTTCCTCGTTTCCCCGGGTCTTTCGTTTCACTTAACTCGTTTCTCGTTTCCTCGTTTCTCGTTTCCTCGTTTC", ""))
 t <- unlist(strsplit("TCGTTTCTC", ""))
 i = 1
@@ -276,8 +299,15 @@ ix
 
 ```
 
-####Consensus and Profile (most likely common ancestor)
-```{r Consensus and Profile}
+####10. Consensus and Profile (most likely common ancestor)
+Say that we have a collection of DNA strings, all having the same length n. Their profile matrix is a 4×n matrix P in which P~1,j~ represents the number of times that 'A' occurs in the jth position of one of the strings, P~2,j~ represents the number of times that C occurs in the j th position, and so on.
+
+A consensus string c is a string of length n formed from our collection by taking the most common symbol at each position; the jth symbol of c therefore corresponds to the symbol having the maximum value in the j-th column of the profile matrix. Of course, there may be more than one most common symbol, leading to multiple possible consensus strings.
+
+*Given*: A collection of at most 10 DNA strings of equal length (at most 1 kbp) in FASTA format.
+
+*Return*: A consensus string and profile matrix for the collection. (If several possible consensus strings exist, then you may return any one of them.)
+```{r Consensus and Profile, eval=FALSE}
 DNAstr <- readLines("/Users/eriksundberg/Downloads/rosalind_cons.txt")
 DNApst <- paste(DNAstr, collapse = "")
 DNAsub <- gsub(">Rosalind_[0-9][0-9][0-9][0-9]", " ", DNApst)
@@ -311,41 +341,9 @@ write(paste(C), file = "DNAmat.txt", ncolumns = length(C), append = TRUE)
 write(paste(G), file = "DNAmat.txt", ncolumns = length(G), append = TRUE)
 write(paste(TT), file = "DNAmat.txt", ncolumns = length(TT), append = TRUE)
 
-#----------------
-
-#Alternatively
-#Read data
-dna <- read.table("rosalind_cons.txt",as.is=T)
-acgt <- matrix(c("A","C","G","T"))
-
-ix <- which(sapply(dna, nchar) == 14)
-dna <- as.matrix(dna[-ix,])
-
-dna <- t(apply(matrix(1:dim(dna)[1]),1,function(x){strsplit(dna[x,], NULL)[[1]]}))
-
-
-#Make Profile
-profile <- apply(acgt,1,function(x){
-            apply(ifelse(dna==x,1,0),2,sum)
-                        })
-profile <- apply(acgt, 1,function(x){
-            sapply(ifelse(sapply(dna,match,x),1,0),sum)
-                        })
-
-profile<-t(profile)
-rownames(profile)<-acgt
-
-#Make Consensus
-c<-matrix(apply(profile,2,max))
-consensus <- paste(apply(matrix(1:dim(dna)[2]),1,function(x){rownames(profile)[profile[,x]==c[x]][1]}),collapse="")
-
-#Output Results
-rownames(profile)<- c("A:","C:","G:","T:")
-write.table(consensus,"output.txt",row.names=F,col.names=F,quote = F)
-write.table(profile,"output.txt",row.names=T,col.names=F,quote = F,append=T)
-
-
-#Alternatively 
+```
+Alternatively 
+```{r, eval=FALSE}
 alphabet = c("A","C","G","T")
 mat = read.table("rosalind_cons.txt")
 
@@ -364,9 +362,16 @@ consensus = apply(res,2,function(x){  alphabet[which.max(x)] })
 consensus = paste(consensus,collapse="")
 ```
 
-####Mortal Fibonacci rabbits
-```{r Mortal Fibonacci rabbits, message=FALSE, warning=FALSE}
+####11. Mortal Fibonacci rabbits
+Recall the definition of the Fibonacci numbers from “Rabbits and Recurrence Relations”, which followed the recurrence relation F~n~=F~n−1~+F~n−2~ and assumed that each pair of rabbits reaches maturity in one month and produces a single pair of offspring (one male, one female) each subsequent month.
 
+Our aim is to somehow modify this recurrence relation to achieve a dynamic programming solution in the case that all rabbits die out after a fixed number of months. See Figure 4 for a depiction of a rabbit tree in which rabbits live for three months (meaning that they reproduce only twice before dying).
+
+*Given*: Positive integers n≤100 and m≤20.
+
+*Return*: The total number of pairs of rabbits that will remain after the n-th month if all rabbits live for m months.
+```{r Mortal Fibonacci rabbits, eval=FALSE}
+library(gmp)
 rF <- c(1,1) #Vector of rabbits alive each month
 rF <- as.bigz(rF)
 n <- 86 #Number of i total
@@ -383,10 +388,10 @@ for(i in 3:n) {
     } else rF[i] = sum(as.bigz(rF[i-1]),as.bigz(rF[i-2]),as.bigz(-rF[i-m-1])) 
   }
 as.bigz(rF[length(rF)])
-#rF[length(rF)]
-```
 
-```{r}
+```
+Alternatively
+```{r, eval=FALSE}
 #Correctly:
 library('gmp')
 
@@ -416,3 +421,4 @@ seq[n]
 rabbitpairs(86,17)
 ```
 
+Problem descriptions sourced from [rosalind.info](www.rosalind.info)

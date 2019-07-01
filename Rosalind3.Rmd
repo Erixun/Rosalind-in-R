@@ -344,6 +344,34 @@ repeat{
       break
   }
 }
+```
+Alternatively (Python code)
+```{python}
+
+seq, query = """
+
+ACGTACGTGACG
+GTA
+
+""".split()
+
+i = 0
+for c in query:
+    i = (i + seq[i:].index(c)) + 1
+    print i,
+```
+
+```{r setup, include=FALSE}
+library(reticulate)
+use_python("/usr/local/bin/python3.7")
+use_virtualenv("myenv")
+os <- import("os")
+os$listdir(".")
+py_install('pandas')
+py_install('matplotlib')
+py_install('numpy')
+py_install('learn')
 
 ```
 
+Problem descriptions sourced from [rosalind.info](www.rosalind.info)

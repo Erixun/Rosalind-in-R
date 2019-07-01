@@ -1,11 +1,26 @@
 ---
-title: "Rosalind2"
+title: "Rosalind problems 12-22"
 author: "Erik Sundberg"
 date: "6/12/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 4
 ---
+***
+####12. DNA strings Overlap graph
+A graph whose nodes have all been labeled can be represented by an adjacency list, in which each row of the list contains the two node labels corresponding to a unique edge.
 
-####DNA strings Overlap graph
+A directed graph (or digraph) is a graph containing directed edges, each of which has an orientation. That is, a directed edge is represented by an arrow instead of a line segment; the starting and ending nodes of an edge form its tail and head, respectively. The directed edge with tail v
+and head w is represented by (v,w) (but not by (w,v)). A directed loop is a directed edge of the form (v,v).
+
+For a collection of strings and a positive integer k, the overlap graph for the strings is a directed graph O~k~ in which each string is represented by a node, and string s is connected to string t with a directed edge when there is a length k suffix of s that matches a length k prefix of t, as long as s≠t; we demand s≠t to prevent directed loops in the overlap graph (although directed cycles may be present).
+
+*Given*: A collection of DNA strings in FASTA format having total length at most 10 kbp.
+
+*Return*: The adjacency list corresponding to O~3~. You may return edges in any order.
+
+**Solution**:
 ```{r Overlap graph, eval=FALSE}
 #Scan the given text (fasta format)
 OGd <- scan("rosalind_grph.txt", what = character())
@@ -35,7 +50,7 @@ for (i in 1:length(dna_list)) {
 #Write the the answer to output file.
 write.table(ol, "output.txt", quote = FALSE, row.names = FALSE, col.names = FALSE, sep = " ")
 ```
-Alternative solution
+Alternatively
 ```{r, eval=FALSE}
 library(seqinr)
 library(stringr)
@@ -59,8 +74,20 @@ for(i in 1:length(data)) {
 write.table(result, file="mymatrix.txt", row.names=FALSE, col.names=FALSE,quote=FALSE)
 ```
 
+***
+####13. Calculating expected offspring
+*Given*: Six nonnegative integers, each of which does not exceed 20,000. The integers correspond to the number of couples in a population possessing each genotype pairing for a given factor. In order, the six given integers represent the number of couples having the following genotypes:
 
-####Calculating expected offspring
+  1. AA-AA
+  2. AA-Aa
+  3. AA-aa
+  4. Aa-Aa
+  5. Aa-aa
+  6. aa-aa
+
+*Return*: The expected number of offspring displaying the dominant phenotype in the next generation, under the assumption that every couple has exactly two offspring.
+
+**Solution**:
 ```{r Expected offspring, eval=FALSE}
 #Numbers of each genotype pairing 
 np <- scan("rosalind_iev.txt")
@@ -76,8 +103,18 @@ write.table(os, file = "os_output.txt",quote = FALSE, row.names = FALSE, col.nam
 
 ```
 
+***
+####14. Finding a shared motif
+A common substring of a collection of strings is a substring of every member of the collection. We say that a common substring is a longest common substring if there does not exist a longer common substring. For example, "CG" is a common substring of "ACGTACGT" and "AACCGTATA", but it is not as long as possible; in this case, "CGTA" is a longest common substring of "ACGTACGT" and "AACCGTATA".
 
-####Finding a shared motif
+Note that the longest common substring is not necessarily unique; for a simple example, "AA" and "CC" are both longest common substrings of "AACC" and "CCAA".
+
+*Given*: A collection of k
+(k≤100) DNA strings of length at most 1 kbp each in FASTA format.
+
+*Return*: A longest common substring of the collection. (If multiple solutions exist, you may return any single solution.)
+
+**Solution**:
 ```{r Shared motif, eval=FALSE}
 library(seqinr)
 #Read all fasta sequences
@@ -106,8 +143,17 @@ while(j <= nchar(allS[1])-nchar(mot))
 print(mot, quote = FALSE)
 writeChar(mot, "mot_output.txt")
 ```
+***
+####15. Independent alleles
+Two events A and B are independent if Pr(A and B) is equal to Pr(A)×Pr(B). In other words, the events do not influence each other, so that we may simply calculate each of the individual probabilities separately and then multiply.
 
-####Independent alleles
+More generally, random variables X and Y are independent if whenever A and B are respective events for X and Y, A and B are independent (i.e., Pr(A and B)=Pr(A)×Pr(B)).
+
+*Given*: Two positive integers k (k≤7) and N (N≤2k). In this problem, we begin with Tom, who in the 0th generation has genotype Aa Bb. Tom has two children in the 1st generation, each of whom has two children, and so on. Each organism always mates with an organism having genotype Aa Bb.
+
+*Return*: The probability that at least N Aa Bb organisms will belong to the k-th generation of Tom's family tree (don't count the Aa Bb mates at each level). Assume that Mendel's second law holds for the factors.
+
+**Solution**:
 ```{r Independent alleles, eval=FALSE}
 #Aa and Bb alleles are independent
 
@@ -124,8 +170,23 @@ prob <- pbinom(P-N, P, 0.75)
 print(signif(prob, 4))
 
 ```
+***
+####16. Finding a protein motif
+To allow for the presence of its varying forms, a protein motif is represented by a shorthand as follows: [XY] means "either X or Y" and {X} means "any amino acid except X." For example, the N-glycosylation motif is written as N{P}[ST]{P}.
 
-####Finding a protein motif
+You can see the complete description and features of a particular protein by its access ID "uniprot_id" in the UniProt database, by inserting the ID number into
+[http://www.uniprot.org/uniprot/uniprot_id](http://www.uniprot.org/uniprot/uniprot_id).
+
+Alternatively, you can obtain a protein sequence in FASTA format by following
+[http://www.uniprot.org/uniprot/uniprot_id.fasta](http://www.uniprot.org/uniprot/uniprot_id.fasta).
+
+For example, the data for protein B5ZC00 can be found at [http://www.uniprot.org/uniprot/B5ZC00](http://www.uniprot.org/uniprot/B5ZC00).
+
+*Given*: At most 15 UniProt Protein Database access IDs.
+
+*Return*: For each protein possessing the N-glycosylation motif, output its given access ID followed by a list of locations in the protein string where the motif can be found.
+
+**Solution**:
 ```{r Finding a protein motif, eval=FALSE}
 library(seqinr)
 
@@ -152,8 +213,22 @@ for(i in 1:length(motf)){
 }
 
 ```
+***
+####17. Inferring mRNA from protein
+For positive integers a and n, a modulo n (written a mod n in shorthand) is the remainder when a is divided by n. For example, 29 mod 11 = 7 because 29 = 11 × 2 + 7.
 
-####Inferring mRNA from protein
+Modular arithmetic is the study of addition, subtraction, multiplication, and division with respect to the modulo operation. We say that a and b are congruent modulo n if a mod n = b mod n; in this case, we use the notation a≡bmodn.
+
+Two useful facts in modular arithmetic are that if a≡bmodn
+and c≡dmodn, then a + c ≡ b + d mod n and a × c ≡ b × d mod n. To check your understanding of these rules, you may wish to verify these relationships for a = 29, b = 73, c = 10, d = 32, and n = 11.
+
+As you will see in this exercise, some Rosalind problems will ask for a (very large) integer solution modulo a smaller number to avoid the computational pitfalls that arise with storing such large numbers.
+
+*Given*: A protein string of length at most 1000 aa.
+
+*Return*: The total number of different RNA strings from which the protein could have been translated, modulo 1,000,000. (Don't neglect the importance of the stop codon in protein translation.)
+
+**Solution**:
 ```{r Inferring mRNA, eval=FALSE}
 
 #Construct an 'amino-acid'-vector w elements corresponding to each codon
@@ -175,10 +250,18 @@ b = (b*a) %% n
 b
 ```
 
+***
+####18. Open reading frames
+Either strand of a DNA double helix can serve as the coding strand for RNA transcription. Hence, a given DNA string implies six total reading frames, or ways in which the same region of DNA can be translated into amino acids: three reading frames result from reading the string itself, whereas three more result from reading its reverse complement.
 
+An open reading frame (ORF) is one which starts from the start codon and ends by stop codon, without any other stop codons in between. Thus, a candidate protein string is derived by translating an open reading frame into amino acids until a stop codon is reached.
 
-####Open reading frames
-```{r ORF}
+*Given*: A DNA string s of length at most 1 kbp in FASTA format.
+
+*Return*: Every distinct candidate protein string that can be translated from ORFs of s. Strings can be returned in any order.
+
+**Solution**:
+```{r ORF, eval=FALSE}
 library(seqinr)
 #Given sequence as character vector
 aseq <- unlist(lapply(read.fasta("rosalind_orf.txt"), toupper))
@@ -221,8 +304,15 @@ writeLines(unique(orf), "output.txt")
 
 ```
 
+***
+####19. Enumerating gene orders
+A permutation of length n is an ordering of the positive integers {1,2,…,n}. For example, π=(5,3,2,1,4) is a permutation of length 5.
 
-####Enumerating gene orders
+*Given*: A positive integer n≤7.
+
+*Return*: The total number of permutations of length n, followed by a list of all such permutations (in any order).
+
+**Solution**:
 ```{r Enumerating, eval=FALSE}
 
 n = 5 #given integer
@@ -269,7 +359,7 @@ write.table(pm, file ="output.txt", quote = FALSE, row.names = FALSE, col.names 
 }
 ```
 Alternatively
-```{r eval=FALSE}
+```{r include=FALSE, eval=FALSE}
 library(combinat)
 
 n = 4
@@ -278,8 +368,17 @@ test <- t(sapply(what, print))
 write.table(factorial(n), "output.txt", row.names = FALSE, col.names = FALSE)
 write.table(test, "output.txt", row.names = FALSE, col.names = FALSE, append = TRUE)
 ```
+***
+####20. Calculating protein mass
+In a weighted alphabet, every symbol is assigned a positive real number called a weight. A string formed from a weighted alphabet is called a weighted string, and its weight is equal to the sum of the weights of its symbols.
 
-####Calculating protein mass
+The standard weight assigned to each member of the 20-symbol amino acid alphabet is the monoisotopic mass of the corresponding amino acid.
+
+*Given*: A protein string P of length at most 1000 aa.
+
+*Return*: The total weight of P. Consult the monoisotopic mass table.
+
+**Solution**:
 ```{r Protein mass, eval=FALSE}
 
 #Given protein
@@ -296,9 +395,8 @@ print(format(prtm, nsmall = 3), quote = FALSE)
 
 
 ```
-
-
-####Reverse-complementary-sequence
+***
+Reverse-complementary-sequence function
 ```{r reverse complement, eval=FALSE}
 
 #s <- aseq#"AAAACCCGGT"
@@ -326,8 +424,15 @@ for(i in 1:length(ssrev)) {
 sc <- paste(ssrev, collapse = "")
 sc }
 ```
+***
+####21. Locating restriction sites
+A DNA string is a reverse palindrome if it is equal to its reverse complement. For instance, GCATGC is a reverse palindrome because its reverse complement is GCATGC. See Figure 2.
 
-####Locating restriction sites
+*Given*: A DNA string of length at most 1 kbp in FASTA format.
+
+*Return*: The position and length of every reverse palindrome in the string having length between 4 and 12. You may return these pairs in any order.
+
+**Solution**:
 ```{r restriction sites, eval=FALSE}
 dna = toupper(unlist(read.fasta('rosalind_revp.txt')))
 
@@ -407,8 +512,15 @@ comp_seq<-chartr("ATCG","TAGC", seq) #Translate characters
 
 ```
 
+***
+####22. RNA Splicing
+After identifying the exons and introns of an RNA string, we only need to delete the introns and concatenate the exons to form a new string ready for translation.
 
-####RNA Splicing
+*Given*: A DNA string s (of length at most 1 kbp) and a collection of substrings of s acting as introns. All strings are given in FASTA format.
+
+*Return*: A protein string resulting from transcribing and translating the exons of s. (Note: Only one solution will exist for the dataset provided.)
+
+**Solution**:
 ```{r RNA Splicing, eval=FALSE}
 exin <- read.fasta("rosalind_splc.txt", as.string = TRUE, forceDNAtolower = TRUE)
 
@@ -430,7 +542,7 @@ writeLines(pept, "output.txt")
 
 ```
 Alternatively
-```{r eval=FALSE}
+```{r, eval=FALSE}
 library(Biostrings)
 x <- readDNAStringSet("rosalind_splc.txt")
 dna <- as.character(x[[1]])
@@ -444,3 +556,4 @@ while (i<=length(x))
 p <- translate(DNAString(dna))
 ```
 
+Problem descriptions sourced from [rosalind.info](www.rosalind.info)
