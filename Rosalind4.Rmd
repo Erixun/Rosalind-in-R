@@ -303,7 +303,7 @@ A rooted tree is a tree in which one node (the root) is set aside to serve as th
 
 Even though a binary tree can include nodes having degree 2, an unrooted binary tree is defined more specifically: all internal nodes have degree 3. In turn, a rooted binary tree is such that only the root has degree 2 (all other internal nodes have degree 3).
 
-*Given*: A positive integer n $(3\le n\le 10000 \)$.
+*Given*: A positive integer n $(3\le n\le 10000)$.
 
 *Return*: The number of internal nodes of any unrooted binary tree having n leaves.
 
@@ -399,9 +399,9 @@ A string *u* is a common subsequence of strings *s* and *t* if the symbols of *u
 
 Analogously to the definition of longest common substring, *u* is a longest common subsequence of *s* and *t* if there does not exist a longer common subsequence of the two strings. Continuing our above example, "ACCTTG" is a longest common subsequence of "AACCTTGG" and "ACACTGTGA", as is "AACTGG".
 
-*Given*: Two DNA strings *s* and t (each having length at most 1 kbp) in FASTA format.
+*Given*: Two DNA strings *s* and *t* (each having length at most 1 kbp) in FASTA format.
 
-*Return*: A longest common subsequence of *s* and t. (If more than one solution exists, you may return any one.)
+*Return*: A longest common subsequence of *s* and *t*. (If more than one solution exists, you may return any one.)
 
 **Solution**:
 ```{r Finding a shared spliced motif, warning=FALSE, eval=FALSE}
@@ -471,8 +471,8 @@ print cur[-1]
 
 ####38. Ordering strings of varying lengths lexicographically
 Say that we have strings s=s~1~s~2~⋯s~m~ and t=t~1~t~2~⋯t~n~ with m<n. Consider the substring t′=t[1:m]. We have two cases:
-  1. If s=t′, then we set s<~Lex~t because s is shorter than t (e.g., APPLE<APPLET).
-  2. Otherwise, s≠t′. We define s<~Lex~t if s<~Lex~t′ and define s>~Lex~t if s>~Lex~t′ (e.g., APPLET<~Lex~ARTS because APPL<~Lex~ARTS).
+1. If s=t′, then we set s<~Lex~t because s is shorter than t (e.g., APPLE<APPLET).
+2. Otherwise, s≠t′. We define s<~Lex~t if s<~Lex~t′ and define s>~Lex~t if s>~Lex~t′ (e.g., APPLET<~Lex~ARTS because APPL<~Lex~ARTS).
 
 *Given*: A permutation of at most 12 symbols defining an ordered alphabet *A* and a positive integer n ($n\le4$).
 
